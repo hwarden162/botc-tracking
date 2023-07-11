@@ -3,7 +3,7 @@ title: "Blood on the Clocktower Stats: Huff"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
-    vertical_layout: fill
+    vertical_layout: scroll
     theme: lumen
 ---
 
@@ -34,6 +34,45 @@ num_wins <- data |>
   nrow()
 
 perc_wins <- (num_wins/num_games)*100
+
+alignments <- c(
+  "Demon", 
+  "Minion", 
+  "Outsider", 
+  "Townsfolk"
+)
+
+tb_characters <- c(
+  "Washerwoman",
+  "Librarian",
+  "Investigator",
+  "Chef",
+  "Empath",
+  "Fortune Teller",
+  "Undertaker",
+  "Monk",
+  "Ravenkeeper",
+  "Virgin",
+  "Slayer",
+  "Soldier",
+  "Mayor",
+  "Butler",
+  "Drunk",
+  "Recluse",
+  "Saint",
+  "Poisoner",
+  "Spy",
+  "Scarlet Woman",
+  "Baron",
+  "Imp"
+)
+
+tb_alignments <- c(
+  rep("Townsfolk", 13),
+  rep("Outsider", 4),
+  rep("Minion", 4),
+  "Demon"
+)
 ```
 
 Overview
@@ -45,7 +84,7 @@ Row
 ### Number of Blood on the Clocktower Games Played (Since 11/09/2023) 
 
 ```{r}
-valueBox(nrow(data))
+valueBox(num_games)
 ```
 
 ### Overall Win Percentage
@@ -74,6 +113,9 @@ Row
 
 ```{r}
 data |> 
+  mutate(
+    starting_alignment = factor(starting_alignment, levels = alignments)
+  ) |> 
   group_by(starting_alignment) |> 
   summarise(
     count = n()
@@ -85,7 +127,7 @@ data |>
     fill = starting_alignment
   ) +
   geom_col(
-    width = 0.7
+    width = 0.6
   ) +
   coord_flip() +
   theme_minimal() +
@@ -99,12 +141,16 @@ data |>
   guides(
     fill = "none"
   )
+
 ```
 
 ### Alignment Win Rate
 
 ```{r}
 data |> 
+  mutate(
+    starting_alignment = factor(starting_alignment, levels = alignments)
+  ) |> 
   filter(result %in% c("Win", "Lose")) |> 
   group_by(starting_alignment, result) |> 
   summarise(
@@ -129,7 +175,7 @@ data |>
     fill = starting_alignment
   ) +
   geom_col(
-    width = 0.7
+    width = 0.6
   ) +
   coord_flip() +
   theme_minimal() +
@@ -149,7 +195,226 @@ data |>
 Trouble Brewing
 ==========
 
-Coming Soon
+```{r tbsetup, include=FALSE}
+tb_data <- data |> 
+  filter(script == "Trouble Brewing")
+
+tb_num_games <- data |> 
+  filter(result %in% c("Win", "Lose")) |> 
+  nrow()
+
+tb_num_wins <- data |> 
+  filter(result == "Win") |> 
+  nrow()
+
+tb_perc_wins <- (num_wins/num_games)*100
+```
+
+Row {data-height=200}
+-----------------------------------------------------------------------
+
+### Number of Trouble Brewing Games Played (Since 11/09/2023) 
+
+```{r}
+valueBox(tb_num_games)
+```
+
+### Trouble Brewing Win Percentage
+
+```{r}
+gauge(
+  round(
+    tb_perc_wins,
+    digits = 2
+  ),
+  min = 0,
+  max = 100,
+  gaugeSectors(
+    success = c(50, 100),
+    warning = c(35, 50),
+    danger = c(0, 35)
+  ),
+  symbol = "%"
+)
+```
+
+Row {data-height=600}
+-----------------------------------------------------------------------
+
+### Trouble Brewing Alignment Distribution
+
+```{r}
+data |> 
+  mutate(
+    starting_alignment = factor(starting_alignment, levels = alignments)
+  ) |> 
+  group_by(starting_alignment) |> 
+  summarise(
+    count = n()
+  ) |> 
+  ggplot() +
+  aes(
+    x = starting_alignment,
+    y = count,
+    fill = starting_alignment
+  ) +
+  geom_col(
+    width = 0.6
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    x = "Starting Alignment",
+    y = "Number of Games"
+  ) +
+  scale_fill_manual(
+    values = c("red", "orange", "blue", "cyan")
+  ) +
+  guides(
+    fill = "none"
+  )
+
+```
+
+### Trouble Brewing Alignment Win Rate
+
+```{r}
+data |> 
+  mutate(
+    starting_alignment = factor(starting_alignment, levels = alignments)
+  ) |> 
+  filter(result %in% c("Win", "Lose")) |> 
+  group_by(starting_alignment, result) |> 
+  summarise(
+    count = n()
+  ) |> 
+  ungroup() |> 
+  group_by(starting_alignment) |> 
+  pivot_wider(
+    id_cols = starting_alignment,
+    names_from = result,
+    values_from = count
+  ) %>%
+  mutate(
+    Lose = replace(Lose, is.na(Lose), 0),
+    Win = replace(Win, is.na(Win), 0),
+    win_perc = (Win / (Win + Lose)) * 100
+  ) |> 
+  ggplot() +
+  aes(
+    x = starting_alignment,
+    y = win_perc,
+    fill = starting_alignment
+  ) +
+  geom_col(
+    width = 0.6
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    x = "Starting Alignment",
+    y = "Win Percentage"
+  ) +
+  ylim(c(0, 100)) +
+  scale_fill_manual(
+    values = c("red", "orange", "blue", "cyan"),
+  ) +
+  guides(
+    fill = "none"
+  )
+```
+
+Row {data-height=600}
+-----------------------------------------------------------------------
+
+### Trouble Brewing Character Distribution
+
+```{r}
+data |> 
+  mutate(
+    starting_character = factor(starting_character, levels = tb_characters) |>  fct_rev()
+  ) |> 
+  group_by(starting_alignment, starting_character) |> 
+  summarise(
+    count = n()
+  ) |> 
+  ggplot() +
+  aes(
+    x = starting_character,
+    y = count,
+    fill = starting_alignment
+  ) +
+  geom_col(
+    width = 0.9
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    x = "Starting Character",
+    y = "Number of Games"
+  ) +
+  scale_fill_manual(
+    values = c("red", "orange", "blue", "cyan")
+  ) +
+  guides(
+    fill = "none"
+  ) +
+  scale_x_discrete(
+    drop = FALSE
+  )
+
+```
+
+### Trouble Brewing Character Win Rate
+
+```{r}
+data |> 
+  mutate(
+    starting_character = factor(starting_character, levels = tb_characters) |> fct_rev()
+  ) |> 
+  filter(result %in% c("Win", "Lose")) |> 
+  group_by(starting_alignment, starting_character, result) |> 
+  summarise(
+    count = n()
+  ) |> 
+  ungroup() |> 
+  group_by(starting_alignment, starting_character) |> 
+  pivot_wider(
+    id_cols = c(starting_alignment, starting_character),
+    names_from = result,
+    values_from = count
+  ) %>%
+  mutate(
+    Lose = replace(Lose, is.na(Lose), 0),
+    Win = replace(Win, is.na(Win), 0),
+    win_perc = (Win / (Win + Lose)) * 100
+  ) |> 
+  ggplot() +
+  aes(
+    x = starting_character,
+    y = win_perc,
+    fill = starting_alignment
+  ) +
+  geom_col(
+    width = 0.9
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    x = "Starting Character",
+    y = "Win Percentage"
+  ) +
+  ylim(c(0, 100)) +
+  scale_fill_manual(
+    values = c("red", "orange", "blue", "cyan"),
+  ) +
+  guides(
+    fill = "none"
+  ) +
+  scale_x_discrete(
+    drop = FALSE
+  )
+```
 
 Sects and Violets
 ==========
