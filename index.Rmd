@@ -59,8 +59,8 @@ gauge(
   min = 0,
   max = 100,
   gaugeSectors(
-    success = c(65, 100),
-    warning = c(35, 65),
+    success = c(50, 100),
+    warning = c(35, 50),
     danger = c(0, 35)
   ),
   symbol = "%"
