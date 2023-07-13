@@ -2,6 +2,7 @@
 title: "Blood on the Clocktower Stats: Huff"
 output: 
   flexdashboard::flex_dashboard:
+    df_print: "paged"
     orientation: rows
     vertical_layout: scroll
     theme: lumen
@@ -12,9 +13,14 @@ library(flexdashboard)
 library(tidyverse)
 library(janitor)
 library(googlesheets4)
+library(DT)
+library(lubridate)
 
 data <- read_sheet("https://docs.google.com/spreadsheets/d/14py4LXl5cANQIrlkxzaFnR3u3PwLRyYVlconhnnLOBk/edit#gid=0") |> 
   clean_names() |> 
+  mutate(
+    date = as_date(date)
+  ) |> 
   mutate(
     script = case_match(
       script,
@@ -697,3 +703,15 @@ Bad Moon Rising
 ==========
 
 Coming Soon
+
+Raw Sheet
+==========
+
+```{r}
+datatable(
+  data, 
+  options = list(
+    pageLength = 20
+  )
+)
+```
