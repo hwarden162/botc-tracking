@@ -14,6 +14,7 @@ library(tidyverse)
 library(janitor)
 library(googlesheets4)
 library(DT)
+library(gt)
 library(lubridate)
 
 data <- read_sheet("https://docs.google.com/spreadsheets/d/14py4LXl5cANQIrlkxzaFnR3u3PwLRyYVlconhnnLOBk/edit#gid=0") |> 
@@ -46,6 +47,13 @@ alignments <- c(
   "Minion", 
   "Outsider", 
   "Townsfolk"
+)
+
+alignment_colours <- c(
+  "red", 
+  "orange", 
+  "cyan", 
+  "blue"
 )
 
 tb_characters <- c(
@@ -164,7 +172,7 @@ data |>
   ) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan")
+    values = alignment_colours
   ) +
   guides(
     fill = "none"
@@ -217,7 +225,7 @@ data |>
   ylim(c(0, 100)) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan"),
+    values = alignment_colours,
   ) +
   guides(
     fill = "none"
@@ -304,7 +312,7 @@ tb_data |>
   ) +
   scale_fill_manual(
     drop = FALSE,  
-    values = c("red", "orange", "blue", "cyan")
+    values = alignment_colours
   ) +
   guides(
     fill = "none"
@@ -357,7 +365,7 @@ tb_data |>
   ylim(c(0, 100)) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan"),
+    values = alignment_colours,
   ) +
   guides(
     fill = "none"
@@ -399,7 +407,7 @@ tb_data |>
   ) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan")
+    values = alignment_colours
   ) +
   guides(
     fill = "none"
@@ -453,7 +461,7 @@ tb_data |>
   ylim(c(0, 100)) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan"),
+    values = alignment_colours,
   ) +
   guides(
     fill = "none"
@@ -540,7 +548,7 @@ snv_data |>
   ) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan")
+    values = alignment_colours
   ) +
   guides(
     fill = "none"
@@ -593,7 +601,7 @@ snv_data |>
   ylim(c(0, 100)) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan"),
+    values = alignment_colours,
   ) +
   guides(
     fill = "none"
@@ -635,7 +643,7 @@ snv_data |>
   ) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan")
+    values = alignment_colours
   ) +
   guides(
     fill = "none"
@@ -689,7 +697,7 @@ snv_data |>
   ylim(c(0, 100)) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "blue", "cyan"),
+    values = c("red", "orange", "cyan", "blue"),
   ) +
   guides(
     fill = "none"
@@ -699,10 +707,46 @@ snv_data |>
   )
 ```
 
-Bad Moon Rising
+Storytellers
 ==========
 
-Coming Soon
+Row {data-height=200}
+-----------------------------------------------------------------------
+
+### Number of ST's who have run games I have played in
+
+```{r}
+num_st <- data$st |> unique() |> length()
+
+valueBox(num_st)
+```
+
+Row
+-----------------------------------------------------------------------
+
+### My Most Common ST's
+
+```{r}
+data %>%
+  group_by(st) |> 
+  summarise(
+    num_games = n(),
+    num_wins = sum(result == "Win"),
+    num_loss = sum(result == "Lose"),
+    win_perc = num_wins / (num_wins + num_loss),
+    win_perc = (win_perc * 100) |> round(digits = 2) |> as.character() |> paste0("%")
+  ) |> 
+  select(
+    -num_wins,
+    -num_loss
+  ) |> 
+  arrange(
+    desc(num_games)
+  ) |> 
+  datatable(
+    colnames = c("Storyteller", "Number of Games", "Win Percentage")
+  )
+```
 
 Raw Sheet
 ==========
@@ -712,6 +756,18 @@ datatable(
   data, 
   options = list(
     pageLength = 20
+  ),
+  colnames = c(
+    "Date",
+    "Script",
+    "Starting\nCharacter",
+    "Ending\nCharacter",
+    "Starting\nAlignment",
+    "Ending\nAlignment",
+    "Result",
+    "Number of\nCharacter Swaps",
+    "Storyteller",
+    "Notes"
   )
 )
 ```
