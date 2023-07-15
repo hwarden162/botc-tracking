@@ -716,7 +716,7 @@ Row {data-height=200}
 ### Number of ST's who have run games I have played in
 
 ```{r}
-num_st <- data$st |> unique() |> length()
+num_st <- data$st[data$st != "Test"] |> unique() |> length()
 
 valueBox(num_st)
 ```
@@ -728,6 +728,7 @@ Row
 
 ```{r}
 data %>%
+  filter(st != "Test") |> 
   group_by(st) |> 
   summarise(
     num_games = n(),
@@ -754,6 +755,7 @@ data %>%
 library(ggrepel)
 
 data %>%
+  filter(st != "Test") |> 
   group_by(st) |> 
   summarise(
     num_games = n(),
