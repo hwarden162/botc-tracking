@@ -697,7 +697,7 @@ snv_data |>
   ylim(c(0, 100)) +
   scale_fill_manual(
     drop = FALSE,
-    values = c("red", "orange", "cyan", "blue"),
+    values = alignment_colours,
   ) +
   guides(
     fill = "none"
@@ -745,6 +745,48 @@ data %>%
   ) |> 
   datatable(
     colnames = c("Storyteller", "Number of Games", "Win Percentage")
+  )
+```
+
+### Comparing ST's
+
+```{r}
+library(ggrepel)
+
+data %>%
+  group_by(st) |> 
+  summarise(
+    num_games = n(),
+    num_wins = sum(result == "Win"),
+    num_loss = sum(result == "Lose"),
+    win_perc = num_wins / (num_wins + num_loss)
+  ) |> 
+  select(
+    -num_wins,
+    -num_loss
+  ) |> 
+  arrange(
+    desc(num_games)
+  ) |> 
+  ggplot() +
+  aes(
+    x = num_games,
+    y = win_perc,
+    label = st
+  ) +
+  geom_point() +
+  geom_text_repel() +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format()
+  ) +
+  scale_x_continuous(
+    trans = scales::log10_trans()
+  ) +
+  theme_minimal() +
+  labs(
+    x = "Number of Games With The Storyteller",
+    y = "Win Percentage With The Storyteller"
   )
 ```
 
