@@ -42,6 +42,10 @@ num_wins <- data |>
 
 perc_wins <- (num_wins/num_games)*100
 
+num_good <- sum(data$starting_alignment %in% c("Townsfolk", "Outsider"))
+
+perc_good <- (num_good/num_games)*100
+
 alignments <- c(
   "Demon", 
   "Minion", 
@@ -128,6 +132,25 @@ valueBox(num_games)
 gauge(
   round(
     perc_wins,
+    digits = 2
+  ),
+  min = 0,
+  max = 100,
+  gaugeSectors(
+    success = c(50, 100),
+    warning = c(35, 50),
+    danger = c(0, 35)
+  ),
+  symbol = "%"
+)
+```
+
+### Overall Good Percentage
+
+```{r}
+gauge(
+  round(
+    perc_good,
     digits = 2
   ),
   min = 0,
