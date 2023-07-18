@@ -10,7 +10,7 @@ output:
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
-library(tidyverse)
+library(tidyverse) 
 library(janitor)
 library(googlesheets4)
 library(DT)
@@ -102,7 +102,7 @@ snv_characters <- c(
   "Sage",
   "Mutant",
   "Sweetheart",
-  "Butler",
+  "Barber",
   "Klutz",
   "Evil Twin",
   "Witch",
