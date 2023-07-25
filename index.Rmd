@@ -280,7 +280,7 @@ data |>
   ) +
   geom_ma(
     ma_fun = SMA,
-    n = 2
+    n = 3
   ) +
   theme_minimal() +
   scale_y_continuous(
