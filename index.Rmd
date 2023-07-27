@@ -826,7 +826,8 @@ data %>%
     -num_loss
   ) |> 
   arrange(
-    desc(num_games)
+    desc(num_games),
+    desc(win_perc)
   ) |> 
   ggplot() +
   aes(
