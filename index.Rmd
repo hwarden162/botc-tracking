@@ -303,8 +303,11 @@ data |>
     x = date,
     y = win_rate
   ) +
-  geom_line(
-    alpha = 0.3
+  geom_hline(
+    yintercept = 0.5,
+    alpha = 0.3,
+    linetype = 2,
+    colour = "#FF0000"
   ) +
   geom_ma(
     ma_fun = SMA,
@@ -317,7 +320,44 @@ data |>
   ) +
   labs(
     x = "Date",
-    y = "Win Rate"
+    y = "Moving Average Win Rate"
+  )
+```
+
+### Win Rate Over Games
+
+```{r}
+data |> 
+  arrange(date) |> 
+  select(result) |> 
+  mutate(
+    order = 1:length(result),
+    result = ifelse(result == "Win", 1, 0),
+    ones = 1
+  ) |> 
+  ggplot() +
+  aes(
+    x = order,
+    y = result
+  ) +
+  geom_hline(
+    yintercept = 0.5,
+    alpha = 0.3,
+    linetype = 2,
+    colour = "#FF0000"
+  ) +
+  geom_ma(
+    ma_fun = SMA,
+    n = 10
+  ) +
+  theme_minimal() +
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    limits = c(0, 1)
+  ) +
+  labs(
+    x = "Number of Games",
+    y = "Moving Average Win Rate"
   )
 ```
 
